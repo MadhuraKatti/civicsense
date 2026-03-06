@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import chat, analytics, schemes, zones
+from routes import chat, analytics, schemes, zones, ai
 from models import Base
 from database import engine
 
@@ -10,6 +10,7 @@ from database import engine
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="CivicSense API")
 app.include_router(schemes.router)
+app.include_router(ai.router)
 # Allow React frontend to connect
 app.add_middleware(
     CORSMiddleware,

@@ -62,3 +62,22 @@ export async function getZones() {
 
   return res.json();
 }
+/*----------Upload pdf---------------*/
+/* ---------------- PDF UPLOAD ---------------- */
+
+export async function uploadPDF(file) {
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/ai/upload-pdf`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (!res.ok) {
+    throw new Error("PDF upload failed");
+  }
+
+  return res.json();
+}
