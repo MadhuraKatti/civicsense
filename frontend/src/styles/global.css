@@ -416,3 +416,33 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',system-ui,sans-serif
 .insight-section{margin-bottom:2px;}
 .insight-section .sttl{margin-top:10px;margin-bottom:6px;}
 .insight-section:first-child .sttl{margin-top:0;}
+
+.upload-bar {
+  background: #eef5ff;
+  border: 1px solid #d6e4ff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin: 10px 16px;
+  font-size: 14px;
+}
+
+.upload-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-spinner {
+  width: 16px;
+  height: 16px;
+  border: 3px solid #d0d0d0;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
