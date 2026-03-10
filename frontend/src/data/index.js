@@ -41,12 +41,22 @@ export const INIT_MSGS = [
 ];
 
 export const ZONES_DATA = [
-  { id: 1, name: "Nashik Road West", type: "Residential", color: "#1d8cf8", x: 13, y: 17, w: 22, h: 21, far: 1.5, ht: "12m (G+3)", permits: ["NMC Approval", "Structural NOC"] },
-  { id: 2, name: "Gangapur Road",    type: "Commercial",  color: "#00c48c", x: 42, y: 13, w: 21, h: 27, far: 2.5, ht: "18m (G+5)", permits: ["Fire NOC", "Trade License", "NMC Approval"] },
-  { id: 3, name: "Satpur MIDC",      type: "Industrial",  color: "#f5a623", x: 67, y: 22, w: 19, h: 33, far: 1.0, ht: "15m",       permits: ["MIDC Approval", "Pollution NOC"] },
-  { id: 4, name: "College Road",     type: "Mixed Use",   color: "#9b7fea", x: 34, y: 50, w: 24, h: 22, far: 2.0, ht: "15m (G+4)", permits: ["NMC Approval", "Fire NOC"] },
-  { id: 5, name: "Trimbak Road",     type: "Restricted",  color: "#f06b6b", x: 9,  y: 53, w: 17, h: 25, far: 0.5, ht: "7m (G+1)",  permits: ["Heritage Clearance"] },
-  { id: 6, name: "Cidco New Nashik", type: "Residential", color: "#1d8cf8", x: 60, y: 61, w: 20, h: 20, far: 1.5, ht: "12m (G+3)", permits: ["NMC Approval"] },
+  { id: 1, name: "Nashik Road West", type: "Residential", color: "#1d8cf8", x: 13, y: 17, w: 22, h: 21, lat: 19.9911, lng: 73.7632, far: 1.5, ht: "12m (G+3)", permits: ["NMC Approval", "Structural NOC"] },
+  { id: 2, name: "Gangapur Road",    type: "Commercial",  color: "#00c48c", x: 42, y: 13, w: 21, h: 27, lat: 20.0059, lng: 73.7898, far: 2.5, ht: "18m (G+5)", permits: ["Fire NOC", "Trade License", "NMC Approval"] },
+  { id: 3, name: "Satpur MIDC",      type: "Industrial",  color: "#f5a623", x: 67, y: 22, w: 19, h: 33, lat: 20.0024, lng: 73.7408, far: 1.0, ht: "15m",       permits: ["MIDC Approval", "Pollution NOC"] },
+  { id: 4, name: "College Road",     type: "Mixed Use",   color: "#9b7fea", x: 34, y: 50, w: 24, h: 22, lat: 20.0121, lng: 73.7790, far: 2.0, ht: "15m (G+4)", permits: ["NMC Approval", "Fire NOC"] },
+  { id: 5, name: "Trimbak Road",     type: "Restricted",  color: "#f06b6b", x: 9,  y: 53, w: 17, h: 25, lat: 20.0210, lng: 73.7618, far: 0.5, ht: "7m (G+1)",  permits: ["Heritage Clearance"] },
+  { id: 6, name: "Cidco New Nashik", type: "Residential", color: "#1d8cf8", x: 60, y: 61, w: 20, h: 20, lat: 19.9831, lng: 73.7712, far: 1.5, ht: "12m (G+3)", permits: ["NMC Approval"] },
+];
+
+export const ISSUES_DATA = [
+  { id: 101, title: "Pothole on Gangapur Road",      description: "Large pothole causing frequent accidents near Gangapur bridge.",   lat: 20.0065, lng: 73.7905, severity: "high" },
+  { id: 102, title: "Broken Streetlight — Satpur",  description: "Multiple streetlights non-functional near Satpur MIDC gate 2.",   lat: 20.0030, lng: 73.7415, severity: "medium" },
+  { id: 103, title: "Open Drain — College Road",    description: "Uncovered drain outside NMC building posing a safety hazard.",     lat: 20.0118, lng: 73.7795, severity: "high" },
+  { id: 104, title: "Illegal Parking — MG Road",    description: "Vehicles blocking footpath near MG Road market zone.",             lat: 20.0053, lng: 73.7820, severity: "low" },
+  { id: 105, title: "Water Leakage — Nashik Road",  description: "Municipal water pipeline burst near Nashik Road railway crossing.", lat: 19.9920, lng: 73.7640, severity: "high" },
+  { id: 106, title: "Garbage Dumping — Trimbak Rd", description: "Uncleared garbage pile at Trimbak Road junction for 3+ days.",      lat: 20.0215, lng: 73.7625, severity: "medium" },
+  { id: 107, title: "Encroachment — Cidco Sector 5", description: "Temporary structure built on public footpath in Cidco area.",       lat: 19.9838, lng: 73.7720, severity: "low" },
 ];
 
 export const ZTYPES = {
