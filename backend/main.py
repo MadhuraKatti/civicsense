@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,18 +11,27 @@ from models import Base
 from database import engine
 
 Base.metadata.create_all(bind=engine)
-app = FastAPI(title="CivicSense API")
 
-# Allow React frontend to connect
+app = FastAPI(title="CivicSense API", version="1.0.0")
+
+# ── CORS ─────────────────────────────────────────────────────────────────────
+# Use env var in production; allow all origins only in local dev.
+_frontend_url = os.getenv("FRONTEND_URL", "")
+_allowed_origins = (
+    [o.strip() for o in _frontend_url.split(",") if o.strip()]
+    if _frontend_url
+    else ["*"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register routes
+# ── Routes ────────────────────────────────────────────────────────────────────
 app.include_router(auth_router)
 app.include_router(search_router)
 app.include_router(alerts_router)
@@ -31,6 +41,12 @@ app.include_router(analytics.router)
 app.include_router(schemes.router)
 app.include_router(zones.router)
 app.include_router(ai.router)
+
+
+# ── Health & root ─────────────────────────────────────────────────────────────
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 
 @app.get("/")

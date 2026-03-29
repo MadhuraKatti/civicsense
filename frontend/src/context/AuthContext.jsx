@@ -4,111 +4,101 @@ import { supabase } from "../lib/supabase";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /* ---------------- LOAD SESSION ---------------- */
-
+  /* ── Load session on mount ────────────────────────────────────────── */
   useEffect(() => {
-
     const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
+      try {
+        const { data } = await supabase.auth.getSession();
+        setUser(data?.session?.user ?? null);
+      } catch (err) {
+        console.warn("[AuthContext] Could not load session:", err.message);
+      }
     };
 
     loadSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    let unsubscribe = () => {};
+    try {
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setUser(session?.user ?? null);
+        }
+      );
+      unsubscribe = () => listener.subscription.unsubscribe();
+    } catch (err) {
+      console.warn("[AuthContext] Could not subscribe to auth changes:", err.message);
+    }
 
-    return () => listener.subscription.unsubscribe();
-
+    return unsubscribe;
   }, []);
 
-
-  /* ---------------- LOGIN ---------------- */
-
+  /* ── Login ───────────────────────────────────────────────────────── */
   async function login(email, password) {
-
     setLoading(true);
     setError(null);
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
-      return false;
-    }
-
-    setUser(data.user);
-    return true;
-  }
-
-
-  /* ---------------- SIGNUP ---------------- */
-
-  async function signup(fullName, email, password) {
-
-    setLoading(true);
-    setError(null);
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName
-        }
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (authError) {
+        setError(authError.message);
+        return false;
       }
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
+      setUser(data.user);
+      return true;
+    } catch (err) {
+      setError(err.message || "Login failed");
       return false;
+    } finally {
+      setLoading(false);
     }
-
-    setUser(data.user);
-    return true;
   }
 
+  /* ── Signup ──────────────────────────────────────────────────────── */
+  async function signup(fullName, email, password) {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
+      if (authError) {
+        setError(authError.message);
+        return false;
+      }
+      setUser(data.user);
+      return true;
+    } catch (err) {
+      setError(err.message || "Signup failed");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  /* ---------------- LOGOUT ---------------- */
-
+  /* ── Logout ──────────────────────────────────────────────────────── */
   async function logout() {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("[AuthContext] signOut error:", err.message);
+    }
     setUser(null);
   }
 
-
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        signup,
-        logout,
-        loading,
-        error,
-        setError
-      }}
-    >
+    <AuthContext.Provider value={{ user, login, signup, logout, loading, error, setError }}>
       {children}
     </AuthContext.Provider>
   );
 }
-
 
 export function useAuth() {
   return useContext(AuthContext);

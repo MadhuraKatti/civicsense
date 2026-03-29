@@ -1,93 +1,85 @@
+"""
+CivicSense AI Agent
+-------------------
+Uses Groq LLM for chat. PDF text is extracted with pypdf and passed as
+context — no FAISS / sentence-transformers required, keeping the build
+lightweight and Render-friendly.
+"""
 import os
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq
 
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
-load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# In-memory PDF context (one document at a time is fine for this use case)
+_pdf_context: str = ""
 
-# LLM
-llm = ChatGroq(
-    api_key=GROQ_API_KEY,
-    model="llama-3.1-8b-instant"
-)
+SYSTEM_PROMPT = """You are CivicSense AI — a civic intelligence assistant for Nashik, India.
 
-# Vector DB
-vector_db = None
+Help citizens understand:
+- Government schemes and subsidies
+- Building rules, FAR limits, and zoning laws
+- Permits, NOCs, and approvals
+- Civic policies and regulations
+
+Give clear, concise answers in bullet points.
+If document context is provided, base your answer on it.
+"""
 
 
-def process_pdf(file_path):
+def process_pdf(file_path: str) -> str:
+    """Extract text from a PDF and store it as context for subsequent queries."""
+    global _pdf_context
 
-    global vector_db
+    from pypdf import PdfReader
 
-    loader = PyPDFLoader(file_path)
-    documents = loader.load()
+    reader = PdfReader(file_path)
+    pages_text = []
+    for page in reader.pages:
+        text = page.extract_text() or ""
+        if text.strip():
+            pages_text.append(text)
 
-    if not documents:
-        raise Exception("PDF contains no readable text")
+    if not pages_text:
+        raise ValueError("PDF contains no extractable text")
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=100
-    )
-
-    docs = splitter.split_documents(documents)
-
-    if len(docs) == 0:
-        raise Exception("PDF text extraction failed")
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    vector_db = FAISS.from_documents(docs, embeddings)
+    # Keep at most ~8 000 chars to stay within token budget
+    full_text = "\n\n".join(pages_text)
+    _pdf_context = full_text[:8000]
 
     return "PDF processed successfully"
 
 
-# ---------------- ASK AI ---------------- #
+def ask_ai(question: str) -> str:
+    """Send a question to Groq, optionally enriched with PDF context."""
+    if not GROQ_API_KEY:
+        raise RuntimeError("GROQ_API_KEY is not configured")
 
-def ask_ai(question: str):
+    try:
+        from groq import Groq
+    except ImportError as exc:
+        raise RuntimeError("groq package is not installed") from exc
 
-    global vector_db
+    client = Groq(api_key=GROQ_API_KEY)
 
-    system_prompt = """
-You are CivicSense AI.
+    user_content = question
+    if _pdf_context:
+        user_content = (
+            f"DOCUMENT CONTEXT:\n{_pdf_context}\n\n"
+            f"User question: {question}"
+        )
 
-Help citizens understand:
-- government schemes
-- building rules
-- zoning laws
-- permits
-- civic policies
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_content},
+        ],
+        max_tokens=800,
+    )
 
-If a PDF document is uploaded, answer based on that document.
-
-Give clear answers in bullet points. If the question is about zoning or building rules, explain regulations and permissions required.
-"""
-
-    context = ""
-
-    if vector_db:
-
-        docs = vector_db.similarity_search(question, k=3)
-
-        context = "\n".join([doc.page_content for doc in docs])
-
-    prompt = f"""
-{system_prompt}
-
-DOCUMENT CONTEXT:
-{context}
-
-User question: {question}
-"""
-
-    response = llm.invoke(prompt)
-
-    return response.content
+    return response.choices[0].message.content

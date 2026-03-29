@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import JSON
+
 Base = declarative_base()
+
 
 class Scheme(Base):
     __tablename__ = "schemes"
@@ -13,7 +14,5 @@ class Scheme(Base):
     benefit = Column(String)
     category = Column(String)
     deadline = Column(String)
-
-    rules = Column(JSON)
+    rules = Column(Text)          # stored as JSON string — works on both PG and SQLite
     apply_link = Column(String)
-
