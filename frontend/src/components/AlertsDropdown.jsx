@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com";
 const STORAGE_KEY = "civicsense-read-alerts";
 
 const SEV_COLOR = { high: "#f06b6b", medium: "#f0a500", low: "#00b07a", info: "#1a7ef0" };
@@ -96,7 +96,7 @@ export default function AlertsDropdown({ onClose }) {
 export function useUnreadCount() {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/alerts`)
+    fetch(`${import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com"}/alerts`)
       .then(r => r.json())
       .then(d => {
         const read = getRead();

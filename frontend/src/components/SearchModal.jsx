@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Ico } from "../icons/index.jsx";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com";
 
 const TYPE_META = {
   issue:    { label: "Issue",    color: "#f06b6b" },

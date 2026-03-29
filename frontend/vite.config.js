@@ -22,7 +22,7 @@ export default defineConfig({
     // Proxy API calls to the backend during local development
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "https://civicsense-7y58.onrender.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
