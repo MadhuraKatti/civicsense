@@ -1,9 +1,8 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://civicsense-7y58.onrender.com";
-
+const BASE_URL = "https://civicsense-7y58.onrender.com";
 /* ---------------- AI CHAT ---------------- */
 
 export async function chatAI(message) {
-  const res = await fetch(`${API_BASE}/ai/chat`, {
+  const res = await fetch(`${BASE_URL}/ai/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message }),
