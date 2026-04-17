@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Ico } from "../icons/index.jsx";
-
-const API = import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com";
+import { searchQuery } from "../api/api";
 
 const TYPE_META = {
   issue:    { label: "Issue",    color: "#f06b6b" },
@@ -32,17 +31,14 @@ export default function SearchModal({ onClose, onNavigate }) {
     debounce.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const data = await searchQuery(query);
         setResults(data.results || []);
       } catch { setResults([]); }
       finally { setLoading(false); }
     }, 300);
   }, [query]);
 
-  function handleKey(e) {
-    if (e.key === "Escape") onClose();
-  }
+  function handleKey(e) { if (e.key === "Escape") onClose(); }
 
   function handleResult(r) {
     const dest = r.type === "zone" ? "map" : r.type === "scheme" ? "schemes" : r.type === "alert" ? "dashboard" : "chat";
@@ -50,7 +46,7 @@ export default function SearchModal({ onClose, onNavigate }) {
     onClose();
   }
 
-  const list = query.trim() ? results : RECENT;
+  const list  = query.trim() ? results : RECENT;
   const label = query.trim() ? "Results" : "Recent searches";
 
   return (

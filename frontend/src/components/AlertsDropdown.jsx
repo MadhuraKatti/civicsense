@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { getAlerts } from "../api/api";
 
-const API = import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com";
 const STORAGE_KEY = "civicsense-read-alerts";
-
 const SEV_COLOR = { high: "#f06b6b", medium: "#f0a500", low: "#00b07a", info: "#1a7ef0" };
 
 function getRead() {
-  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); } catch { return new Set(); }
+  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
+  catch { return new Set(); }
 }
 function saveRead(set) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
@@ -19,8 +19,7 @@ export default function AlertsDropdown({ onClose }) {
   const ref = useRef();
 
   useEffect(() => {
-    fetch(`${API}/alerts`)
-      .then(r => r.json())
+    getAlerts()
       .then(d => setAlerts(d.alerts || []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -32,15 +31,8 @@ export default function AlertsDropdown({ onClose }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
 
-  function markOne(id) {
-    const next = new Set([...read, id]);
-    setRead(next); saveRead(next);
-  }
-
-  function markAll() {
-    const next = new Set(alerts.map(a => a.id));
-    setRead(next); saveRead(next);
-  }
+  function markOne(id) { const next = new Set([...read, id]); setRead(next); saveRead(next); }
+  function markAll()   { const next = new Set(alerts.map(a => a.id)); setRead(next); saveRead(next); }
 
   const unread = alerts.filter(a => !read.has(a.id)).length;
 
@@ -53,9 +45,7 @@ export default function AlertsDropdown({ onClose }) {
       </div>
 
       <div className="ad-list">
-        {loading && [1,2,3].map(i => (
-          <div key={i} className="ad-skeleton" />
-        ))}
+        {loading && [1, 2, 3].map(i => <div key={i} className="ad-skeleton" />)}
         {!loading && alerts.map(a => (
           <div
             key={a.id}
@@ -96,8 +86,7 @@ export default function AlertsDropdown({ onClose }) {
 export function useUnreadCount() {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "https://civicsense-7y58.onrender.com"}/alerts`)
-      .then(r => r.json())
+    getAlerts()
       .then(d => {
         const read = getRead();
         setCount((d.alerts || []).filter(a => !read.has(a.id)).length);
