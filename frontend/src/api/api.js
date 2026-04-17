@@ -38,15 +38,17 @@ export async function chatAI(message) {
 /* ─────────────────────────── DASHBOARD ───────────────────────── */
 
 export async function getDashboard() {
-  const res = await fetch(`${API_BASE}/analytics/dashboard`);
-  if (!res.ok) throw new Error("Dashboard fetch failed");
+  const res = await fetch(`${BASE_URL}/analytics/dashboard`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Dashboard fetch failed (${res.status})`);
   return res.json();
 }
 
 /* ─────────────────────────── SCHEMES ─────────────────────────── */
 
 export async function checkSchemes(profile) {
-  const res = await fetch(`${API_BASE}/schemes/check`, {
+  const res = await fetch(`${BASE_URL}/schemes/check`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(profile),
@@ -55,11 +57,13 @@ export async function checkSchemes(profile) {
   return res.json();
 }
 
-/* ---------------- ZONES ---------------- */
+/* ─────────────────────────── ZONES ───────────────────────────── */
 
 export async function getZones() {
-  const res = await fetch(`${API_BASE}/zones`);
-  if (!res.ok) throw new Error("Zones fetch failed");
+  const res = await fetch(`${BASE_URL}/zones`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Zones fetch failed (${res.status})`);
   return res.json();
 }
 
@@ -68,7 +72,8 @@ export async function getZones() {
 export async function uploadPDF(file) {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch(`${API_BASE}/ai/upload-pdf`, {
+  // NOTE: Do NOT set Content-Type manually — browser sets the multipart boundary.
+  const res = await fetch(`${BASE_URL}/ai/upload-pdf`, {
     method: "POST",
     headers: await authHeaders(),
     body: formData,
