@@ -131,6 +131,14 @@ function AuthModal({ onClose, onLogin }) {
   );
 }
 
+// ── Valid pages for URL sync ────────────────────────────────────
+const VALID_PAGES = ["home", "chat", "map", "schemes", "dashboard", "login", "signup"];
+
+function getPageFromURL() {
+  const hash = window.location.hash.replace("#/", "").replace("#", "");
+  return VALID_PAGES.includes(hash) ? hash : "home";
+}
+
 // ── Main shell ─────────────────────────────────────────────────
 function HamburgerIcon({ open }) {
   return (
@@ -143,13 +151,43 @@ function HamburgerIcon({ open }) {
 function AppShell() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
-  const [page, setPage]             = useState("home");
+  const [page, setPageState]        = useState(() => getPageFromURL());
   const [showSearch, setSearch]     = useState(false);
   const [showAlerts, setAlerts]     = useState(false);
   const [showAccount, setAccount]   = useState(false);
   const [showAuthModal, setAuthModal] = useState(false);
   const [mobileNav, setMobileNav]   = useState(false);
   const unread = useUnreadCount();
+
+  // ── History-aware page setter ──────────────────────────────────
+  // mode: "push" (default) adds to history; "replace" replaces current entry
+  function setPage(dest, mode = "push") {
+    if (dest === page) return;
+    const url = dest === "home" ? "#/" : `#/${dest}`;
+    if (mode === "replace") {
+      window.history.replaceState({ page: dest }, "", url);
+    } else {
+      window.history.pushState({ page: dest }, "", url);
+    }
+    setPageState(dest);
+  }
+
+  // ── Sync page state on browser back/forward ────────────────────
+  useEffect(() => {
+    function onPopState(e) {
+      const dest = e.state?.page || getPageFromURL();
+      setPageState(dest);
+    }
+    window.addEventListener("popstate", onPopState);
+
+    // Set initial history state so first entry is tracked
+    if (!window.history.state?.page) {
+      const initial = getPageFromURL();
+      window.history.replaceState({ page: initial }, "", initial === "home" ? "#/" : `#/${initial}`);
+    }
+
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // Show auth modal on first session load if not logged in
   useEffect(() => {
@@ -184,8 +222,8 @@ function AppShell() {
     ? displayName.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
     : null;
 
-  if (page === "login")  return <LoginPage  onNavigate={setPage} />;
-  if (page === "signup") return <SignupPage onNavigate={setPage} />;
+  if (page === "login")  return <LoginPage  onNavigate={(dest) => setPage(dest, "replace")} />;
+  if (page === "signup") return <SignupPage onNavigate={(dest) => setPage(dest, "replace")} />;
 
   return (
     <div className="app">
