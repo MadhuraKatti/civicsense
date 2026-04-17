@@ -14,14 +14,20 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CivicSense API", version="1.0.0")
 
-# ── CORS ─────────────────────────────────────────────────────────────────────
-# Use env var in production; allow all origins only in local dev.
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# FRONTEND_URL may be comma-separated for multiple origins,
+# e.g. "https://civicsense-virid.vercel.app,http://localhost:5173"
 _frontend_url = os.getenv("FRONTEND_URL", "")
-_allowed_origins = (
-    [o.strip() for o in _frontend_url.split(",") if o.strip()]
-    if _frontend_url
-    else ["*"]
-)
+
+if _frontend_url:
+    _allowed_origins = [o.strip() for o in _frontend_url.split(",") if o.strip()]
+else:
+    # Fallback: allow the known production frontend + local dev
+    _allowed_origins = [
+        "https://civicsense-virid.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:4173",   # vite preview
+    ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,19 +37,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+# ── Routes ─────────────────────────────────────────────────────────────────────
 app.include_router(auth_router)
 app.include_router(search_router)
 app.include_router(alerts_router)
 app.include_router(issues_router)
-app.include_router(chat.router)
+app.include_router(chat.router)       # empty stub — no-op
 app.include_router(analytics.router)
 app.include_router(schemes.router)
 app.include_router(zones.router)
-app.include_router(ai.router)
+app.include_router(ai.router)         # owns /ai/chat and /ai/upload-pdf
 
 
-# ── Health & root ─────────────────────────────────────────────────────────────
+# ── Health & root ──────────────────────────────────────────────────────────────
 @app.get("/health")
 def health():
     return {"status": "ok"}

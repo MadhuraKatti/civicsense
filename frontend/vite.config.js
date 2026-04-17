@@ -6,20 +6,16 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    // Raise the chunk-size warning threshold so CI doesn't treat large
-    // CSS bundles as errors.
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-        },
+        manualChunks: { vendor: ["react", "react-dom"] },
       },
     },
   },
   server: {
     port: 5173,
-    // Proxy API calls to the backend during local development
+    // Proxy for local development only — production uses VITE_API_BASE_URL
     proxy: {
       "/api": {
         target: "https://civicsense-7y58.onrender.com",

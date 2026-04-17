@@ -93,7 +93,7 @@ function AuthModal({ onClose, onLogin }) {
             <button className="auth-btn" onClick={handleLogin} disabled={loading || !email || !pass}>
               {loading ? <span className="auth-spinner" /> : "Sign in"}
             </button>
-            <div className="auth-hint">Demo: <code>admin@civicsense.in</code> / <code>admin123</code></div>
+            <div className="auth-hint">Sign in with your Supabase account or create one above.</div>
           </div>
         )}
 
@@ -169,8 +169,9 @@ function AppShell() {
     setPage(dest);
   }
 
-  const initials = user?.name
-    ? user.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
+  const displayName = user?.user_metadata?.full_name || user?.email || "";
+  const initials = displayName
+    ? displayName.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
     : null;
 
   if (page === "login")  return <LoginPage  onNavigate={setPage} />;
@@ -217,7 +218,7 @@ function AppShell() {
           <div style={{ position: "relative" }}>
             <div
               className={`av ${!user ? "av--guest" : ""}`}
-              title={user ? user.name : "Sign in"}
+              title={user ? displayName : "Sign in"}
               onClick={() => setAccount(s => !s)}
             >
               {user ? initials : <Ico.User />}

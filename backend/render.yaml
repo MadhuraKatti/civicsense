@@ -9,10 +9,10 @@ services:
         fromDatabase:
           name: civicsense-db
           property: connectionString
-      - key: GROQ_API_KEY
-        sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://civicsense-virid.vercel.app
+      - key: GROQ_API_KEY
+        sync: false   # set manually in Render dashboard
 
 databases:
   - name: civicsense-db
