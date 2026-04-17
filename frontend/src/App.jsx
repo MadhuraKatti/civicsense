@@ -132,6 +132,14 @@ function AuthModal({ onClose, onLogin }) {
 }
 
 // ── Main shell ─────────────────────────────────────────────────
+function HamburgerIcon({ open }) {
+  return (
+    <div className={`hamburger ${open ? "open" : ""}`}>
+      <span /><span /><span />
+    </div>
+  );
+}
+
 function AppShell() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
@@ -140,6 +148,7 @@ function AppShell() {
   const [showAlerts, setAlerts]     = useState(false);
   const [showAccount, setAccount]   = useState(false);
   const [showAuthModal, setAuthModal] = useState(false);
+  const [mobileNav, setMobileNav]   = useState(false);
   const unread = useUnreadCount();
 
   // Show auth modal on first session load if not logged in
@@ -167,6 +176,7 @@ function AppShell() {
   function navigate(dest) {
     if (PROTECTED.includes(dest) && !user) { setAuthModal(true); return; }
     setPage(dest);
+    setMobileNav(false);
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email || "";
@@ -180,7 +190,7 @@ function AppShell() {
   return (
     <div className="app">
       <nav className="chrome">
-        <div className="brand" onClick={() => setPage("home")}>
+        <div className="brand" onClick={() => { setPage("home"); setMobileNav(false); }}>
           <div className="brand-mark"><Ico.Civic /></div>
           <div>
             <div className="brand-name brand-name--gradient">CIVICSENSE</div>
@@ -188,7 +198,12 @@ function AppShell() {
           </div>
         </div>
 
-        <div className="nav-pills">
+        {/* Hamburger toggle — visible only on mobile via CSS */}
+        <button className="mobile-menu-btn" onClick={() => setMobileNav(s => !s)} aria-label="Toggle navigation">
+          <HamburgerIcon open={mobileNav} />
+        </button>
+
+        <div className={`nav-pills ${mobileNav ? "nav-pills--open" : ""}`}>
           {TABS.map(t => (
             <div key={t.id} className={`npill ${page === t.id ? "on" : ""}`} onClick={() => navigate(t.id)}>
               <t.I /><span>{t.lbl}</span>
