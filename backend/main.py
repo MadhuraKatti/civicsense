@@ -16,7 +16,7 @@ app = FastAPI(title="CivicSense API", version="1.0.0")
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 # FRONTEND_URL may be comma-separated for multiple origins,
-# e.g. "https://civicsense-virid.vercel.app,http://localhost:5173"
+# e.g. "https://civicsense-gamma.vercel.app,http://localhost:5173"
 _frontend_url = os.getenv("FRONTEND_URL", "")
 
 if _frontend_url:
@@ -24,7 +24,7 @@ if _frontend_url:
 else:
     # Fallback: allow the known production frontend + local dev
     _allowed_origins = [
-        "https://civicsense-virid.vercel.app",
+        "https://civicsense-gamma.vercel.app",
         "http://localhost:5173",
         "http://localhost:4173",   # vite preview
     ]

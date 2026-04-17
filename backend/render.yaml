@@ -10,7 +10,7 @@ services:
           name: civicsense-db
           property: connectionString
       - key: FRONTEND_URL
-        value: https://civicsense-virid.vercel.app
+        value: https://civicsense-gamma.vercel.app
       - key: GROQ_API_KEY
         sync: false   # set manually in Render dashboard
 
